@@ -1,0 +1,17 @@
+redic
+====
+
+Lightweight Redis Client
+
+Description
+-----------
+
+Wrapper for Redis::Client that avoids rubyisms.
+
+## Installation
+
+You can install it using rubygems.
+
+```
+$ gem install redic
+```
