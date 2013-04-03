@@ -6,8 +6,8 @@ Lightweight Redis Client
 Description
 -----------
 
-Wrapper for Redis::Client that avoids rubyisms. It is inspired by
-[redigo](https://github.com/garyburd/redigo), a Redis client
+Wrapper for `Redis::Client` that avoids rubyisms. It is inspired
+by [redigo](https://github.com/garyburd/redigo), a Redis client
 library for golang.
 
 ## Usage
@@ -23,7 +23,6 @@ assert_equal "bar", c.call("GET", "foo")
 
 # Pipelining is implemented by buffering commands,
 # then calling Redic#run
-
 c.write("SET", "foo", "bar")
 c.write("GET", "foo")
 
