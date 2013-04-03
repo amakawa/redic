@@ -10,4 +10,5 @@ Gem::Specification.new do |s|
   s.homepage          = "https://github.com/amakawa/redic"
   s.files             = []
   s.license           = "MIT"
+  s.add_dependency "redis"
 end
