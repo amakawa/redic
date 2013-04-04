@@ -11,32 +11,7 @@ class Redic
     def initialize(url)
       @uri = URI.parse(url)
       @connection = nil
-    end
-
-    def connect
-      @pid = Process.pid
-
-      establish_connection
-
-      if uri.password
-        write [:auth, uri.password] 
-        read
-      end
-
-      if uri.path && uri.path != "/0"
-        write [:select, uri.path[1..-1]] 
-        read
-      end
-
-      self
-    end
-
-    def connected?
-      @connection && @connection.connected?
-    end
-
-    def disconnect
-      @connection.disconnect if connected?
+      @semaphore = Mutex.new
     end
 
     def read
@@ -51,7 +26,74 @@ class Redic
       end
     end
 
-  protected
+    def connect
+      tries = 0
+
+      begin
+        establish_connection unless connected?
+
+        tries += 1
+
+        @semaphore.synchronize do
+          yield
+        end
+
+      rescue ConnectionError => err
+        disconnect
+
+        if tries < 3
+          retry
+        else
+          raise err
+        end
+
+      rescue Exception => err
+        disconnect
+        raise err
+      end
+    end
+
+  private
+    def establish_connection
+      @connection = Connection::Ruby.connect(@uri)
+
+      authenticate
+      selectdb
+
+    rescue TimeoutError
+      raise CannotConnectError,
+            "Timed out connecting to Redis on #{location}"
+    rescue Errno::ECONNREFUSED
+      raise CannotConnectError,
+            "Error connecting to Redis on #{location} (ECONNREFUSED)"
+    end
+
+    def authenticate
+      if uri.password
+        @semaphore.synchronize do
+          write [:auth, uri.password] 
+          read
+        end
+      end
+    end
+
+    def selectdb
+      if uri.path && uri.path != "/0"
+        @semaphore.synchronize do
+          write [:select, uri.path[1..-1]] 
+          read
+        end
+      end
+    end
+
+    def connected?
+      @connection && @connection.connected?
+    end
+
+    def disconnect
+      @connection.disconnect if connected?
+    end
+
     def io
       yield
     rescue TimeoutError
@@ -66,49 +108,5 @@ class Redic
                  [$!.class.name.split("::").last]
     end
 
-    def establish_connection
-      @connection = Connection::Ruby.connect(@uri)
-
-    rescue TimeoutError
-      raise CannotConnectError,
-            "Timed out connecting to Redis on #{location}"
-    rescue Errno::ECONNREFUSED
-      raise CannotConnectError,
-            "Error connecting to Redis on #{location} (ECONNREFUSED)"
-    end
-
-    def ensure_connected
-      tries = 0
-
-      begin
-        if connected?
-          if Process.pid != @pid
-            raise InheritedError,
-              "Tried to use a connection from a child " +
-              "process without reconnecting. You need " +
-              "to reconnect to Redis after forking."
-          end
-        else
-          connect
-        end
-
-        tries += 1
-
-        yield
-
-      rescue ConnectionError
-        disconnect
-
-        if tries < 3
-          retry
-        else
-          raise
-        end
-
-      rescue Exception
-        disconnect
-        raise
-      end
-    end
   end
 end

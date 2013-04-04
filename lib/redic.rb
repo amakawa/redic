@@ -7,7 +7,7 @@ class Redic
   end
 
   def call(*args)
-    @client.send(:ensure_connected) do
+    @client.connect do
       @client.write(args)
       @client.read
     end
@@ -18,7 +18,7 @@ class Redic
   end
 
   def run
-    @client.send(:ensure_connected) do
+    @client.connect do
       @buffer.each do |args|
         @client.write(args)
       end
