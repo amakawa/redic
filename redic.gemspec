@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.name              = "redic"
   s.version           = "0.0.2"
   s.summary           = "Lightweight Redis Client"
-  s.description       = "Wrapper for Redis::Client that avoids rubyisms."
+  s.description       = "Lightweight Redis Client"
   s.authors           = ["Michel Martens", "Cyril David"]
   s.email             = ["michel@soveran.com", "me@cyrildavid.com"]
   s.homepage          = "https://github.com/amakawa/redic"

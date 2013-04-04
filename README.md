@@ -6,8 +6,8 @@ Lightweight Redis Client
 Description
 -----------
 
-Wrapper for `Redis::Client` that avoids rubyisms. It is inspired
-by [redigo](https://github.com/garyburd/redigo), a Redis client
+Lightweight Redis Client inspired by
+[redigo](https://github.com/garyburd/redigo), a Redis client
 library for golang.
 
 ## Usage
