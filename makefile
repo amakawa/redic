@@ -1,0 +1,2 @@
+build:
+	cutest test/*.rb
