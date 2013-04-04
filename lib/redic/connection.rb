@@ -60,107 +60,56 @@ class Redic
       end
     end
 
-    if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+    class TCPSocket < ::Socket
 
-      require "timeout"
+      include SocketMixin
 
-      class TCPSocket < ::TCPSocket
+      def self.connect(host, port, timeout)
+        # Limit lookup to IPv4, as Redis doesn't yet do IPv6...
+        addr = ::Socket.getaddrinfo(host, nil, Socket::AF_INET)
+        sock = new(::Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0)
+        sockaddr = ::Socket.pack_sockaddr_in(port, addr[0][3])
 
-        include SocketMixin
-
-        def self.connect(host, port, timeout)
-          Timeout.timeout(timeout) do
-            sock = new(host, port)
-            sock
-          end
-        rescue Timeout::Error
-          raise TimeoutError
-        end
-      end
-
-      if defined?(::UNIXSocket)
-
-        class UNIXSocket < ::UNIXSocket
-
-          include SocketMixin
-
-          def self.connect(path, timeout)
-            Timeout.timeout(timeout) do
-              sock = new(path)
-              sock
-            end
-          rescue Timeout::Error
+        begin
+          sock.connect_nonblock(sockaddr)
+        rescue Errno::EINPROGRESS
+          if IO.select(nil, [sock], nil, timeout) == nil
             raise TimeoutError
           end
 
-          # JRuby raises Errno::EAGAIN on #read_nonblock even when IO.select
-          # says it is readable (1.6.6, in both 1.8 and 1.9 mode).
-          # Use the blocking #readpartial method instead.
-
-          def _read_from_socket(nbytes)
-            readpartial(nbytes)
-
-          rescue EOFError
-            raise Errno::ECONNRESET
+          begin
+            sock.connect_nonblock(sockaddr)
+          rescue Errno::EISCONN
           end
         end
 
+        sock
       end
+    end
 
-    else
+    class UNIXSocket < ::Socket
 
-      class TCPSocket < ::Socket
+      include SocketMixin
 
-        include SocketMixin
+      def self.connect(path, timeout)
+        sock = new(::Socket::AF_UNIX, Socket::SOCK_STREAM, 0)
+        sockaddr = ::Socket.pack_sockaddr_un(path)
 
-        def self.connect(host, port, timeout)
-          # Limit lookup to IPv4, as Redis doesn't yet do IPv6...
-          addr = ::Socket.getaddrinfo(host, nil, Socket::AF_INET)
-          sock = new(::Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0)
-          sockaddr = ::Socket.pack_sockaddr_in(port, addr[0][3])
+        begin
+          sock.connect_nonblock(sockaddr)
+        rescue Errno::EINPROGRESS
+          if IO.select(nil, [sock], nil, timeout) == nil
+            raise TimeoutError
+          end
 
           begin
             sock.connect_nonblock(sockaddr)
-          rescue Errno::EINPROGRESS
-            if IO.select(nil, [sock], nil, timeout) == nil
-              raise TimeoutError
-            end
-
-            begin
-              sock.connect_nonblock(sockaddr)
-            rescue Errno::EISCONN
-            end
+          rescue Errno::EISCONN
           end
-
-          sock
         end
+
+        sock
       end
-
-      class UNIXSocket < ::Socket
-
-        include SocketMixin
-
-        def self.connect(path, timeout)
-          sock = new(::Socket::AF_UNIX, Socket::SOCK_STREAM, 0)
-          sockaddr = ::Socket.pack_sockaddr_un(path)
-
-          begin
-            sock.connect_nonblock(sockaddr)
-          rescue Errno::EINPROGRESS
-            if IO.select(nil, [sock], nil, timeout) == nil
-              raise TimeoutError
-            end
-
-            begin
-              sock.connect_nonblock(sockaddr)
-            rescue Errno::EISCONN
-            end
-          end
-
-          sock
-        end
-      end
-
     end
 
     class Ruby
