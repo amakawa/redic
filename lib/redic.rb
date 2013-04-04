@@ -1,8 +1,8 @@
-require "redis"
+require "redic/client"
 
 class Redic
   def initialize(options = {})
-    @client = Redis::Client.new(options)
+    @client = Redic::Client.new(options)
     @buffer = []
   end
 
