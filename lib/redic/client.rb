@@ -107,6 +107,5 @@ class Redic
                  "Connection lost (%s)" %
                  [$!.class.name.split("::").last]
     end
-
   end
 end
