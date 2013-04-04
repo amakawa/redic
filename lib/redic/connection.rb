@@ -4,6 +4,8 @@ require "socket"
 
 class Redic
   module Connection
+    TIMEOUT = 10.0
+
     module SocketMixin
 
       CRLF = "\r\n".freeze
@@ -64,7 +66,7 @@ class Redic
 
       include SocketMixin
 
-      def self.connect(host, port, timeout)
+      def self.connect(host, port)
         # Limit lookup to IPv4, as Redis doesn't yet do IPv6...
         addr = ::Socket.getaddrinfo(host, nil, Socket::AF_INET)
         sock = new(::Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0)
@@ -73,7 +75,7 @@ class Redic
         begin
           sock.connect_nonblock(sockaddr)
         rescue Errno::EINPROGRESS
-          if IO.select(nil, [sock], nil, timeout) == nil
+          if IO.select(nil, [sock], nil, Connection::TIMEOUT) == nil
             raise TimeoutError
           end
 
@@ -91,14 +93,14 @@ class Redic
 
       include SocketMixin
 
-      def self.connect(path, timeout)
+      def self.connect(path)
         sock = new(::Socket::AF_UNIX, Socket::SOCK_STREAM, 0)
         sockaddr = ::Socket.pack_sockaddr_un(path)
 
         begin
           sock.connect_nonblock(sockaddr)
         rescue Errno::EINPROGRESS
-          if IO.select(nil, [sock], nil, timeout) == nil
+          if IO.select(nil, [sock], nil, Connection::TIMEOUT) == nil
             raise TimeoutError
           end
 
@@ -121,16 +123,14 @@ class Redic
       DOLLAR   = "$".freeze
       ASTERISK = "*".freeze
 
-      def self.connect(config)
-        if config[:scheme] == "unix"
-          sock = UNIXSocket.connect(config[:path], config[:timeout])
+      def self.connect(uri)
+        if uri.scheme == "unix"
+          sock = UNIXSocket.connect(uri.path)
         else
-          sock = TCPSocket.connect(config[:host], config[:port], config[:timeout])
+          sock = TCPSocket.connect(uri.host, uri.port)
         end
 
         instance = new(sock)
-        instance.timeout = config[:timeout]
-        instance.set_tcp_keepalive config[:tcp_keepalive]
         instance
       end
 

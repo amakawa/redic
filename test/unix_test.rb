@@ -1,7 +1,7 @@
 require File.expand_path("../lib/redic", File.dirname(__FILE__))
 
 setup do
-  Redic.new(url: "unix:///tmp/redis.sock")
+  Redic.new("unix:///tmp/redis.sock")
 end
 
 test "normal commands" do |c|
