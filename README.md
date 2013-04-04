@@ -17,16 +17,16 @@ library for golang.
 redis = Redic.new
 
 # Processes the command and returns the response.
-c.call("SET", "foo", "bar")
+redis.call("SET", "foo", "bar")
 
-assert_equal "bar", c.call("GET", "foo")
+assert_equal "bar", redis.call("GET", "foo")
 
 # Pipelining is implemented by buffering commands,
 # then calling Redic#run
-c.write("SET", "foo", "bar")
-c.write("GET", "foo")
+redis.write("SET", "foo", "bar")
+redis.write("GET", "foo")
 
-assert_equal ["OK", "bar"], c.run
+assert_equal ["OK", "bar"], redis.run
 ```
 
 ## Installation
