@@ -1,2 +1,2 @@
-redis -v 3.0.3
 cutest -v 1.2.0
+hiredis -v 0.4.5
