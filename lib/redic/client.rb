@@ -46,12 +46,13 @@ class Redic
     end
 
     def establish_connection
-      @connection = Redic::Connection.new(@uri)
+      begin
+        @connection = Redic::Connection.new(@uri)
+      rescue Exception => err
+        raise err, "Can't connect to: %s" % @uri
+      end
 
       authenticate
-
-    rescue Exception => err
-       raise err, "Can't connect to: %s" % @uri
     end
 
     def authenticate
