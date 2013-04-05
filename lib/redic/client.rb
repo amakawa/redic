@@ -3,7 +3,6 @@ require "uri"
 
 class Redic
   class Client
-
     def initialize(url)
       @uri = URI.parse(url)
       @connection = nil

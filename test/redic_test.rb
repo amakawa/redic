@@ -4,6 +4,10 @@ setup do
   Redic.new
 end
 
+test "url" do |c|
+  assert_equal "redis://127.0.0.1:6379", c.url
+end
+
 test "normal commands" do |c|
   c.call("SET", "foo", "bar")
 

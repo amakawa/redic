@@ -1,7 +1,10 @@
 require "redic/client"
 
 class Redic
+  attr :url
+
   def initialize(url = "redis://127.0.0.1:6379")
+    @url = url
     @client = Redic::Client.new(url)
     @buffer = []
   end
