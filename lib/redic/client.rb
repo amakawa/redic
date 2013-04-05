@@ -19,7 +19,7 @@ class Redic
     end
 
     def connect
-      retryable(3) do
+      try(3) do
         establish_connection unless connected?
 
         @semaphore.synchronize do
@@ -28,7 +28,8 @@ class Redic
       end
     end
 
-    def retryable(times)
+  private
+    def try(times)
       tries = 0
 
       begin
@@ -43,7 +44,6 @@ class Redic
       end
     end
 
-  private
     def establish_connection
       @connection = Redic::Connection.new(@uri)
 
