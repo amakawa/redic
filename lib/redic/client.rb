@@ -1,12 +1,8 @@
-require "redic/errors"
 require "redic/connection"
-require "socket"
 require "uri"
 
 class Redic
   class Client
-
-    attr :uri
 
     def initialize(url)
       @uri = URI.parse(url)
@@ -15,72 +11,52 @@ class Redic
     end
 
     def read
-      io do
-        @connection.read
-      end
+      @connection.read
     end
 
     def write(command)
-      io do
-        @connection.write(command)
-      end
+      @connection.write(command)
     end
 
     def connect
-      tries = 0
-
-      begin
+      retryable(3) do
         establish_connection unless connected?
-
-        tries += 1
 
         @semaphore.synchronize do
           yield
         end
+      end
+    end
 
-      rescue ConnectionError => err
-        disconnect
+    def retryable(times)
+      tries = 0
 
-        if tries < 3
+      begin
+        yield
+      rescue Exception => err
+        if (tries += 1) <= times
+          sleep 0.01
           retry
         else
-          raise err
+          raise err, "%s (retries=%d)" % [err.message, tries]
         end
-
-      rescue Exception => err
-        disconnect
-        raise err
       end
     end
 
   private
     def establish_connection
-      @connection = Connection::Ruby.connect(@uri)
+      @connection = Redic::Connection.new(@uri)
 
       authenticate
-      selectdb
 
-    rescue TimeoutError
-      raise CannotConnectError,
-            "Timed out connecting to Redis on #{location}"
-    rescue Errno::ECONNREFUSED
-      raise CannotConnectError,
-            "Error connecting to Redis on #{location} (ECONNREFUSED)"
+    rescue Exception => err
+       raise err, "Can't connect to: %s" % @uri
     end
 
     def authenticate
-      if uri.password
+      if @uri.password
         @semaphore.synchronize do
-          write [:auth, uri.password] 
-          read
-        end
-      end
-    end
-
-    def selectdb
-      if uri.path && uri.path != "/0"
-        @semaphore.synchronize do
-          write [:select, uri.path[1..-1]] 
+          write [:auth, @uri.password]
           read
         end
       end
@@ -88,24 +64,6 @@ class Redic
 
     def connected?
       @connection && @connection.connected?
-    end
-
-    def disconnect
-      @connection.disconnect if connected?
-    end
-
-    def io
-      yield
-    rescue TimeoutError
-      raise TimeoutError, "Connection timed out"
-    rescue Errno::ECONNRESET,
-           Errno::EPIPE,
-           Errno::ECONNABORTED,
-           Errno::EBADF,
-           Errno::EINVAL
-           raise ConnectionError,
-                 "Connection lost (%s)" %
-                 [$!.class.name.split("::").last]
     end
   end
 end
