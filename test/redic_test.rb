@@ -28,3 +28,9 @@ test "multi/exec" do |c|
 
   assert_equal ["OK", "QUEUED", ["OK"]], c.run
 end
+
+test "runtime errors" do |c|
+  assert_raise RuntimeError do
+    c.call("KABLAMMO")
+  end
+end
