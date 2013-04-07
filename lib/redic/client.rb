@@ -35,12 +35,13 @@ class Redic
 
       begin
         yield
-      rescue Exception => err
-        if (tries += 1) <= times
+      rescue StandardError => err
+        if tries < times
+          tries += 1
           sleep 0.01
           retry
         else
-          raise err, "%s (retries=%d)" % [err.message, tries]
+          raise err
         end
       end
     end
@@ -48,7 +49,7 @@ class Redic
     def establish_connection
       begin
         @connection = Redic::Connection.new(@uri)
-      rescue Exception => err
+      rescue StandardError => err
         raise err, "Can't connect to: %s" % @uri
       end
 
