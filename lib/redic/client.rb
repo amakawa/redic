@@ -10,9 +10,7 @@ class Redic
     end
 
     def read
-      @connection.read.tap do |reply|
-        raise reply if reply.kind_of?(RuntimeError)
-      end
+      @connection.read
     end
 
     def write(command)

@@ -30,9 +30,9 @@ test "multi/exec" do |c|
 end
 
 test "runtime errors" do |c|
-  assert_raise RuntimeError do
-    c.call("KABLAMMO")
-  end
+  res = c.call("KABLAMMO")
+
+  assert res.is_a?(RuntimeError)
 end
 
 test "encoding" do |c|
@@ -44,20 +44,16 @@ test "encoding" do |c|
 
 end if defined?(Encoding)
 
-test "raise in pipeline reads appropriate responses" do |c|
+test "errors in pipeline" do |c|
   c.write("SET", "foo", "bar")
   c.write("INCR", "foo")
   c.write("GET", "foo")
 
-  assert_raise RuntimeError do
-    c.run
-  end
+  res = c.run
 
-  # check for out of order responses
-  c.write("SET", "bar", "baz")
-  c.write("GET", "bar")
-
-  assert_equal ["OK", "baz"], c.run
+  assert "OK" == res[0]
+  assert RuntimeError === res[1]
+  assert "bar" == res[2]
 end
 
 test "thread safety" do |c|

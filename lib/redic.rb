@@ -26,20 +26,8 @@ class Redic
         @client.write(args)
       end
 
-      err = nil
-
-      result = @buffer.map do
-        begin
-          @client.read
-        rescue RuntimeError => e
-          err = e
-        end
-      end
-
-      if err
-        raise err
-      else
-        return result
+      @buffer.map do
+        @client.read
       end
     end
   ensure
