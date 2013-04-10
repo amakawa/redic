@@ -18,32 +18,14 @@ class Redic
     end
 
     def connect
-      try(3) do
-        establish_connection unless connected?
+      establish_connection unless connected?
 
-        @semaphore.synchronize do
-          yield
-        end
+      @semaphore.synchronize do
+        yield
       end
     end
 
   private
-    def try(times)
-      tries = 0
-
-      begin
-        yield
-      rescue StandardError => err
-        if tries < times
-          tries += 1
-          sleep 0.01
-          retry
-        else
-          raise err
-        end
-      end
-    end
-
     def establish_connection
       begin
         @connection = Redic::Connection.new(@uri)
