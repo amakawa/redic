@@ -11,16 +11,16 @@ test "normal commands" do |c|
 end
 
 test "pipelining" do |c|
-  c.write("SET", "foo", "bar")
-  c.write("GET", "foo")
+  c.pipe("SET", "foo", "bar")
+  c.pipe("GET", "foo")
 
   assert_equal ["OK", "bar"], c.run
 end
 
 test "multi/exec" do |c|
-  c.write("MULTI")
-  c.write("SET", "foo", "bar")
-  c.write("EXEC")
+  c.pipe("MULTI")
+  c.pipe("SET", "foo", "bar")
+  c.pipe("EXEC")
 
   assert_equal ["OK", "QUEUED", ["OK"]], c.run
 end

@@ -1,11 +1,17 @@
 require File.expand_path("../lib/redic", File.dirname(__FILE__))
 
+REDIS_URL = "redis://localhost:6379/3"
+
+prepare do
+  Redic.new(REDIS_URL).call("FLUSHDB")
+end
+
 setup do
-  Redic.new
+  Redic.new(REDIS_URL)
 end
 
 test "url" do |c|
-  assert_equal "redis://127.0.0.1:6379", c.url
+  assert_equal "redis://localhost:6379/3", c.url
 end
 
 test "normal commands" do |c|
@@ -15,16 +21,16 @@ test "normal commands" do |c|
 end
 
 test "pipelining" do |c|
-  c.write("SET", "foo", "bar")
-  c.write("GET", "foo")
+  c.pipe("SET", "foo", "bar")
+  c.pipe("GET", "foo")
 
   assert_equal ["OK", "bar"], c.run
 end
 
 test "multi/exec" do |c|
-  c.write("MULTI")
-  c.write("SET", "foo", "bar")
-  c.write("EXEC")
+  c.pipe("MULTI")
+  c.pipe("SET", "foo", "bar")
+  c.pipe("EXEC")
 
   assert_equal ["OK", "QUEUED", ["OK"]], c.run
 end
@@ -45,9 +51,9 @@ test "encoding" do |c|
 end if defined?(Encoding)
 
 test "errors in pipeline" do |c|
-  c.write("SET", "foo", "bar")
-  c.write("INCR", "foo")
-  c.write("GET", "foo")
+  c.pipe("SET", "foo", "bar")
+  c.pipe("INCR", "foo")
+  c.pipe("GET", "foo")
 
   res = c.run
 
@@ -75,4 +81,38 @@ test "thread safety" do |c|
 
   assert_equal ["1"], foos.uniq
   assert_equal ["2"], bars.uniq
+end
+
+test "blocking commands" do |c1|
+  c2 = Redic.new
+  r = nil
+
+  t1 = Thread.new do
+    r = c1.call("BLPOP", "foo", 5)
+  end
+
+  t2 = Thread.new do
+    c2.call("RPUSH", "foo", "value")
+  end
+
+  t1.join
+  t2.join
+
+  assert_equal ["foo", "value"], r
+end
+
+test "pub/sub" do |c1|
+  c2 = Redic.new
+
+  assert_equal ["subscribe", "foo", 1], c1.call("SUBSCRIBE", "foo")
+
+  c2.call("PUBLISH", "foo", "value1")
+  c2.call("PUBLISH", "foo", "value2")
+
+  assert_equal ["message", "foo", "value1"], c1.client.read
+  assert_equal ["message", "foo", "value2"], c1.client.read
+
+  c1.call("UNSUBSCRIBE", "foo")
+
+  assert_equal "PONG", c1.call("PING")
 end

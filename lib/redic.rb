@@ -2,11 +2,12 @@ require "redic/client"
 
 class Redic
   attr :url
+  attr :client
 
   def initialize(url = "redis://127.0.0.1:6379")
     @url = url
     @client = Redic::Client.new(url)
-    @buffer = []
+    @pipe = []
   end
 
   def call(*args)
@@ -16,21 +17,21 @@ class Redic
     end
   end
 
-  def write(*args)
-    @buffer << args
+  def pipe(*args)
+    @pipe << args
   end
 
   def run
     @client.connect do
-      @buffer.each do |args|
+      @pipe.each do |args|
         @client.write(args)
       end
 
-      @buffer.map do
+      @pipe.map do
         @client.read
       end
     end
   ensure
-    @buffer.clear
+    @pipe.clear
   end
 end
