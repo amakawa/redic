@@ -7,7 +7,7 @@ class Redic
   def initialize(url = "redis://127.0.0.1:6379")
     @url = url
     @client = Redic::Client.new(url)
-    @pipe = []
+    @queue = []
   end
 
   def call(*args)
@@ -17,21 +17,21 @@ class Redic
     end
   end
 
-  def pipe(*args)
-    @pipe << args
+  def queue(*args)
+    @queue << args
   end
 
   def run
     @client.connect do
-      @pipe.each do |args|
+      @queue.each do |args|
         @client.write(args)
       end
 
-      @pipe.map do
+      @queue.map do
         @client.read
       end
     end
   ensure
-    @pipe.clear
+    @queue.clear
   end
 end
