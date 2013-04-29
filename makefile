@@ -1,2 +1,2 @@
-build:
-	RUBYLIB=./lib cutest test/*.rb
+test:
+	RUBYLIB=./lib cutest tests/*.rb
