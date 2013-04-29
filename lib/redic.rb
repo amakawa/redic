@@ -21,7 +21,7 @@ class Redic
     @queue << args
   end
 
-  def run
+  def commit
     @client.connect do
       @queue.each do |args|
         @client.write(args)

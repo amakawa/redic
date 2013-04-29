@@ -24,7 +24,7 @@ test "pipelining" do |c|
   c.queue("SET", "foo", "bar")
   c.queue("GET", "foo")
 
-  assert_equal ["OK", "bar"], c.run
+  assert_equal ["OK", "bar"], c.commit
 end
 
 test "multi/exec" do |c|
@@ -32,7 +32,7 @@ test "multi/exec" do |c|
   c.queue("SET", "foo", "bar")
   c.queue("EXEC")
 
-  assert_equal ["OK", "QUEUED", ["OK"]], c.run
+  assert_equal ["OK", "QUEUED", ["OK"]], c.commit
 end
 
 test "runtime errors" do |c|
@@ -55,7 +55,7 @@ test "errors in pipeline" do |c|
   c.queue("INCR", "foo")
   c.queue("GET", "foo")
 
-  res = c.run
+  res = c.commit
 
   assert "OK" == res[0]
   assert RuntimeError === res[1]

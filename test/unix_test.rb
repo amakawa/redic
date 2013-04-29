@@ -14,7 +14,7 @@ test "pipelining" do |c|
   c.queue("SET", "foo", "bar")
   c.queue("GET", "foo")
 
-  assert_equal ["OK", "bar"], c.run
+  assert_equal ["OK", "bar"], c.commit
 end
 
 test "multi/exec" do |c|
@@ -22,5 +22,5 @@ test "multi/exec" do |c|
   c.queue("SET", "foo", "bar")
   c.queue("EXEC")
 
-  assert_equal ["OK", "QUEUED", ["OK"]], c.run
+  assert_equal ["OK", "QUEUED", ["OK"]], c.commit
 end
