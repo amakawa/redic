@@ -20,6 +20,7 @@ class Redic
 
     def connect
       establish_connection unless connected?
+      timestamp_connection
 
       @semaphore.synchronize do
         yield
@@ -30,12 +31,15 @@ class Redic
     def establish_connection
       begin
         @connection = Redic::Connection.new(@uri)
-        @timestamp = Time.now.to_i
       rescue StandardError => err
         raise err, "Can't connect to: %s" % @uri
       end
 
       authenticate
+    end
+
+    def timestamp_connection
+      @timestamp = Time.now.to_i
     end
 
     def authenticate
