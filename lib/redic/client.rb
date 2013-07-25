@@ -25,6 +25,9 @@ class Redic
       @semaphore.synchronize do
         yield
       end
+    rescue Errno::ECONNRESET
+      @connection = nil
+      retry
     end
 
   private
