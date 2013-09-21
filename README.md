@@ -6,9 +6,8 @@ Lightweight Redis Client
 Description
 -----------
 
-Lightweight Redis Client inspired by
-[redigo](https://github.com/garyburd/redigo), a Redis client
-library for golang.
+Lightweight Redis Client inspired by [redigo][redigo], a Redis
+client library for golang.
 
 ## Usage
 
@@ -38,6 +37,10 @@ instead it acts as a transport layer. The lock provided is smaller
 than that of redis-rb, as it only wraps the writing and reading from
 the connection. So even if both clients are thread-safe by default,
 the peformance of a smaller lock is marginally better.
+
+[redigo]: https://github.com/garyburd/redigo
+[hiredis]: https://github.com/pietern/hiredis-rb
+[redis-rb]: https://github.com/redis/redis-rb
 
 ## Limitations
 
