@@ -5,7 +5,6 @@ class Redic
   class Client
     def initialize(url)
       @uri = URI.parse(url)
-      @ttl = Integer(ENV.fetch("REDIC_TTL", 60))
       @connection = nil
       @semaphore = Mutex.new
     end
@@ -20,7 +19,6 @@ class Redic
 
     def connect
       establish_connection unless connected?
-      timestamp_connection
 
       @semaphore.synchronize do
         yield
@@ -41,10 +39,6 @@ class Redic
       authenticate
     end
 
-    def timestamp_connection
-      @timestamp = Time.now.to_i
-    end
-
     def authenticate
       if @uri.password
         @semaphore.synchronize do
@@ -55,11 +49,7 @@ class Redic
     end
 
     def connected?
-      @connection && @connection.connected? && alive?
-    end
-
-    def alive?
-      Time.now.to_i - @timestamp < @ttl
+      @connection && @connection.connected?
     end
   end
 end
