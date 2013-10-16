@@ -22,10 +22,10 @@ assert_equal "bar", redis.call("GET", "foo")
 
 # Pipelining is implemented by buffering commands,
 # then calling Redic#run
-redis.pipe("SET", "foo", "bar")
-redis.pipe("GET", "foo")
+redis.queue("SET", "foo", "bar")
+redis.queue("GET", "foo")
 
-assert_equal ["OK", "bar"], redis.run
+assert_equal ["OK", "bar"], redis.commit
 ```
 
 ## Differences with redis-rb
