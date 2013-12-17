@@ -4,7 +4,7 @@ class Redic
   attr :url
   attr :client
 
-  def initialize(url = "redis://127.0.0.1:6379")
+  def initialize(url = ENV['REDIS_URL'] || "redis://127.0.0.1:6379")
     @url = url
     @client = Redic::Client.new(url)
     @queue = []
