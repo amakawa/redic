@@ -21,7 +21,7 @@ redis.call("SET", "foo", "bar")
 assert_equal "bar", redis.call("GET", "foo")
 
 # Pipelining is implemented by buffering commands,
-# then calling Redic#run
+# then calling Redic#commit
 redis.queue("SET", "foo", "bar")
 redis.queue("GET", "foo")
 
