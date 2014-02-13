@@ -37,12 +37,22 @@ class Redic
       end
 
       authenticate
+      select
     end
 
     def authenticate
       if @uri.password
         @semaphore.synchronize do
-          write [:auth, @uri.password]
+          write ["AUTH", @uri.password]
+          read
+        end
+      end
+    end
+
+    def select
+      if @uri.path
+        @semaphore.synchronize do
+          write ["SELECT", @uri.path[1..-1]]
           read
         end
       end

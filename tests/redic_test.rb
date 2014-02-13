@@ -1,6 +1,6 @@
 require File.expand_path("../lib/redic", File.dirname(__FILE__))
 
-REDIS_URL = "redis://localhost:6379/3"
+REDIS_URL = "redis://localhost:6379/"
 
 prepare do
   Redic.new(REDIS_URL).call("FLUSHDB")
@@ -11,7 +11,7 @@ setup do
 end
 
 test "url" do |c|
-  assert_equal "redis://localhost:6379/3", c.url
+  assert_equal "redis://localhost:6379/", c.url
 end
 
 test "normal commands" do |c|
