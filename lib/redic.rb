@@ -1,4 +1,4 @@
-require "redic/client"
+require_relative "redic/client"
 
 class Redic
   attr :url
@@ -33,5 +33,9 @@ class Redic
     end
   ensure
     @queue.clear
+  end
+
+  def timeout
+    @client.timeout
   end
 end

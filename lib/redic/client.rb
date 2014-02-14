@@ -1,4 +1,4 @@
-require "redic/connection"
+require_relative "connection"
 require "uri"
 
 class Redic
