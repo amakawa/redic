@@ -1,3 +1,4 @@
+require "cutest"
 require_relative "../lib/redic"
 
 setup do

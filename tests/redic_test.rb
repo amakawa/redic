@@ -1,3 +1,4 @@
+require "cutest"
 require_relative "../lib/redic"
 
 REDIS_URL = "redis://localhost:6379/"
