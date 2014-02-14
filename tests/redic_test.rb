@@ -14,6 +14,16 @@ test "url" do |c|
   assert_equal "redis://localhost:6379/", c.url
 end
 
+test "timeout" do |c1|
+  # Default timeout is 10 seconds
+  assert_equal 10_000_000, c1.timeout
+
+  # Timeout configured to 200_000 microseconds
+  c2 = Redic.new(timeout: 200_000)
+
+  assert_equal 200_000, c2.timeout
+end
+
 test "normal commands" do |c|
   c.call("SET", "foo", "bar")
 
@@ -115,15 +125,4 @@ test "pub/sub" do |c1|
   c1.call("UNSUBSCRIBE", "foo")
 
   assert_equal "PONG", c1.call("PING")
-end
-
-test "timeout" do |c1|
-
-  # Default timeout is 10 seconds
-  assert_equal 10_000_000, c1.client.timeout
-
-  # Timeout configured to 200_000 microseconds
-  c2 = Redic.new(timeout: 200_000)
-
-  assert_equal 200_000, c2.client.timeout
 end

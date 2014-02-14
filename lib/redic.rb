@@ -34,4 +34,8 @@ class Redic
   ensure
     @queue.clear
   end
+
+  def timeout
+    @client.timeout
+  end
 end
