@@ -1,4 +1,4 @@
-require File.expand_path("../lib/redic", File.dirname(__FILE__))
+require_relative "../lib/redic"
 
 REDIS_URL = "redis://localhost:6379/"
 

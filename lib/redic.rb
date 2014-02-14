@@ -1,4 +1,4 @@
-require "redic/client"
+require_relative "redic/client"
 
 class Redic
   attr :url
