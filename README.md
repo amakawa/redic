@@ -29,9 +29,9 @@ assert_equal ["OK", "bar"], redis.commit
 ```
 
 You can provide the password and the database to be selected. The
-format for Redis URLs is "redis://user:pass@host:port/db". As
+format for Redis URLs is `redis://user:pass@host:port/db`. As
 Redis only needs a password for authentication, the user can be
-ommited:
+omitted:
 
 ```ruby
 # Connect to localhost:6380 using "bar" as password and use the
