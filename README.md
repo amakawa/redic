@@ -28,6 +28,38 @@ redis.queue("GET", "foo")
 assert_equal ["OK", "bar"], redis.commit
 ```
 
+You can provide the password and the database to be selected. The
+format for Redis URLs is "redis://user:pass@host:port/db". As
+Redis only needs a password for authentication, the user can be
+ommited:
+
+```ruby
+# Connect to localhost:6380 using "bar" as password and use the
+# database 2. Both AUTH and SELECT commands are issued after
+# connecting. The user part of the URL is not provided.
+redis = Redic.new("redis://:bar@localhost:6380/2")
+```
+
+It is also possible to configure a timeout for the connection. The
+default timeout is 10 seconds.
+
+```ruby
+# Timeout expressed in microseconds.
+redis = Redic.new(timeout: 2_000_000)
+```
+
+Here's one final example using both a Redis URL and a timeout:
+
+```ruby
+# It's recommended to store the REDIS_URL as an environment
+# variable. Use `fetch` to retrieve values that must be present,
+# as it raises an error if the value is not found.
+REDIS_URL = ENV.fetch("REDIS_URL")
+REDIS_TIMEOUT = ENV.fetch("REDIS_TIMEOUT")
+
+redis = Redic.new(REDIS_URL, timeout: REDIS_TIMEOUT)
+```
+
 ## Differences with redis-rb
 
 Redic uses [hiredis][hiredis] for the connection and for parsing
