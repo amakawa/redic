@@ -2,15 +2,13 @@ require "hiredis/connection"
 
 class Redic
   module Connection
-    TIMEOUT = 10_000_000
-
-    def self.new(uri)
+    def self.new(uri, timeout)
       connection = Hiredis::Connection.new
 
       if uri.scheme == "unix"
-        connection.connect_unix(uri.path, TIMEOUT)
+        connection.connect_unix(uri.path, timeout)
       else
-        connection.connect(uri.host, uri.port, TIMEOUT)
+        connection.connect(uri.host, uri.port, timeout)
       end
 
       connection

@@ -3,8 +3,11 @@ require "uri"
 
 class Redic
   class Client
-    def initialize(url)
+    attr :timeout
+
+    def initialize(url, timeout)
       @uri = URI.parse(url)
+      @timeout = timeout
       @connection = nil
       @semaphore = Mutex.new
     end
@@ -31,7 +34,7 @@ class Redic
   private
     def establish_connection
       begin
-        @connection = Redic::Connection.new(@uri)
+        @connection = Redic::Connection.new(@uri, @timeout)
       rescue StandardError => err
         raise err, "Can't connect to: %s" % @uri
       end

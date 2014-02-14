@@ -4,9 +4,9 @@ class Redic
   attr :url
   attr :client
 
-  def initialize(url = "redis://127.0.0.1:6379")
+  def initialize(url = "redis://127.0.0.1:6379", timeout: 10_000_000)
     @url = url
-    @client = Redic::Client.new(url)
+    @client = Redic::Client.new(url, timeout)
     @queue = []
   end
 
