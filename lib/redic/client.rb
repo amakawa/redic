@@ -39,30 +39,29 @@ class Redic
         raise err, "Can't connect to: %s" % @uri
       end
 
-      authenticate
-      select
-    end
-
-    def authenticate
-      if @uri.password
-        @semaphore.synchronize do
-          write ["AUTH", @uri.password]
-          read
-        end
+      if @uri.scheme == "redis"
+        @uri.password && assert_ok(call("AUTH", @uri.password))
+        @uri.path     && assert_ok(call("SELECT", @uri.path[1..-1]))
       end
     end
 
-    def select
-      if @uri.path
-        @semaphore.synchronize do
-          write ["SELECT", @uri.path[1..-1]]
-          read
-        end
+    def call(*args)
+      @semaphore.synchronize do
+        write(args)
+        read
       end
     end
 
     def connected?
       @connection && @connection.connected?
+    end
+
+    def assert(value, error)
+      raise error unless value
+    end
+
+    def assert_ok(reply)
+      assert(reply == "OK", reply)
     end
   end
 end

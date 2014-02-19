@@ -15,7 +15,48 @@ test "url" do |c|
   assert_equal "redis://localhost:6379/", c.url
 end
 
+test "select db from url" do |c1|
+
+  # Connect to db 1
+  c2 = Redic.new("redis://localhost:6379/2")
+
+  c2.call("FLUSHDB")
+
+  # Set a value in db 0
+  c1.call("SET", "foo", "bar")
+
+  assert_equal(1, c1.call("DBSIZE"))
+  assert_equal(0, c2.call("DBSIZE"))
+end
+
+test "error when selecting db from url" do
+  c2 = Redic.new("redis://localhost:6379/foo")
+
+  assert_raise(RuntimeError) do
+
+    # Connection is lazy, send a command
+    c2.call("PING")
+  end
+end
+
+test "error when authenticating from url" do
+
+  # The correct password for 6380 is "foo"
+  c2 = Redic.new("redis://:foo@localhost:6380/")
+  c2.call("PING")
+
+  # The password provided is wrong
+  c3 = Redic.new("redis://:bar@localhost:6380/")
+
+  assert_raise(RuntimeError) do
+
+    # Connection is lazy, send a command
+    c3.call("PING")
+  end
+end
+
 test "timeout" do |c1|
+
   # Default timeout is 10 seconds
   assert_equal 10_000_000, c1.timeout
 
