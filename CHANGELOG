@@ -1,0 +1,7 @@
+1.1.0
+
+- Redic is now compatible with all rubies.
+
+1.0.0
+
+- Add a configurable timeout.
