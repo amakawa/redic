@@ -45,7 +45,7 @@ default timeout is 10 seconds.
 
 ```ruby
 # Timeout expressed in microseconds.
-redis = Redic.new(timeout: 2_000_000)
+redis = Redic.new(REDIS_URL, 2_000_000)
 redis.timeout == 2_000_000 #=> true
 ```
 
@@ -58,7 +58,7 @@ Here's one final example using both a Redis URL and a timeout:
 REDIS_URL = ENV.fetch("REDIS_URL")
 REDIS_TIMEOUT = ENV.fetch("REDIS_TIMEOUT")
 
-redis = Redic.new(REDIS_URL, timeout: REDIS_TIMEOUT)
+redis = Redic.new(REDIS_URL, REDIS_TIMEOUT)
 ```
 
 ## Differences with redis-rb

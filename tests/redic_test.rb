@@ -61,7 +61,7 @@ test "timeout" do |c1|
   assert_equal 10_000_000, c1.timeout
 
   # Timeout configured to 200_000 microseconds
-  c2 = Redic.new(timeout: 200_000)
+  c2 = Redic.new(REDIS_URL, 200_000)
 
   assert_equal 200_000, c2.timeout
 end
