@@ -41,7 +41,7 @@ class Redic
 
       if @uri.scheme == "redis"
         @uri.password && assert_ok(call("AUTH", @uri.password))
-        @uri.path     && assert_ok(call("SELECT", @uri.path[1..-1]))
+        @uri.path != "" && assert_ok(call("SELECT", @uri.path[1..-1]))
       end
     end
 
