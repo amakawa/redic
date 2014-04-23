@@ -55,6 +55,11 @@ test "error when authenticating from url" do
   end
 end
 
+test "Can connect to sentinel" do
+  c2 = Redic.new "redis://localhost:26379"
+  c2.call "SENTINEL", "masters"
+end
+
 test "timeout" do |c1|
 
   # Default timeout is 10 seconds
