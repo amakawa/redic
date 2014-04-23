@@ -1,3 +1,7 @@
+1.1.1
+
+- Redic can now connect to sentinels.
+
 1.1.0
 
 - Redic is now compatible with all rubies.
