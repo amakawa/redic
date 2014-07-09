@@ -13,8 +13,8 @@ class RedicHA
     @sentinel_url = sentinel_url
     @master_name = master_name
     @timeout = timeout
-    @client = Redic::Client.new(get_master_url, timeout)
     @db = db 
+    @client = Redic::Client.new(get_master_url, timeout)
     @queue = []
   end
 
