@@ -51,6 +51,10 @@ class RedicHA
     @client.timeout
   end
 
+  def url
+    @sentinel_url
+  end
+
   private
 
     def get_master_url
