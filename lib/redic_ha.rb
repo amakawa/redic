@@ -55,28 +55,22 @@ class RedicHA
 
     def get_master_url
       sentinel = Redic.new self.sentinel_url
-      reply = sentinel.call "SENTINEL", "masters"
-      masters = reply.inject({}) do |m, el|
-        m[el[1]] = {
-          :ip => el[3],
-          :port => el[5]
-        }
-        m
-      end
-      master = masters[self.master_name]
-      return "redis://#{master[:ip]}:#{master[:port]}/#{@db}"
+      master_ip, master_port = sentinel.call "SENTINEL", "get-master-addr-by-name", master_name
+      return "redis://#{master_ip}:#{master_port}/#{@db}"
     end
 
     def exec_with_retry(&block)
       retries = 20
       begin
         block.call
-      rescue Errno::ECONNREFUSED
+      rescue Errno::ECONNREFUSED, RuntimeError
         if retries >= 0
           retries -= 1
           sleep 0.1
           @client = Redic::Client.new(get_master_url, @timeout)
           retry
+        else
+          raise e
         end
       end
     end
