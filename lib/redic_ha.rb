@@ -63,10 +63,10 @@ class RedicHA
       retries = 20
       begin
         block.call
-      rescue Errno::ECONNREFUSED, RuntimeError
+      rescue Errno::ECONNREFUSED, RuntimeError => e
         if retries >= 0
           retries -= 1
-          sleep 0.1
+          sleep 0.5
           @client = Redic::Client.new(get_master_url, @timeout)
           retry
         else

@@ -1,3 +1,5 @@
+# coding=utf-8
+
 require "cutest"
 require_relative "../lib/redic"
 
