@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name              = "redic"
-  s.version           = "1.1.1"
+  s.version           = "1.2.0"
   s.summary           = "Lightweight Redis Client"
   s.description       = "Lightweight Redis Client"
   s.authors           = ["Michel Martens", "Cyril David"]
