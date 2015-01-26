@@ -48,6 +48,13 @@ default timeout is 10 seconds.
 redis = Redic.new(REDIS_URL, 2_000_000)
 redis.timeout == 2_000_000 #=> true
 ```
+A client can be re-configured, forcing the next connection to
+be established with the new details:
+
+```ruby
+redis = Redic.new("redis://localhost:6379")
+redis.configure("redis://localhost:6380")
+```
 
 Here's one final example using both a Redis URL and a timeout:
 
@@ -60,6 +67,9 @@ REDIS_TIMEOUT = ENV.fetch("REDIS_TIMEOUT")
 
 redis = Redic.new(REDIS_URL, REDIS_TIMEOUT)
 ```
+
+Both the initializer and the `configure` method accept a `URL` and
+a `timeout`.
 
 ## Differences with redis-rb
 

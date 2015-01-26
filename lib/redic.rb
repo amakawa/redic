@@ -10,6 +10,11 @@ class Redic
     @queue = []
   end
 
+  def configure(url, timeout = 10_000_000)
+    @url = url
+    @client.configure(url, timeout)
+  end
+
   def call(*args)
     @client.connect do
       @client.write(args)

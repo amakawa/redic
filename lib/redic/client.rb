@@ -6,10 +6,14 @@ class Redic
     attr :timeout
 
     def initialize(url, timeout)
+      @semaphore = Mutex.new
+      configure(url, timeout)
+    end
+
+    def configure(url, timeout)
       @uri = URI.parse(url)
       @timeout = timeout
       @connection = nil
-      @semaphore = Mutex.new
     end
 
     def read

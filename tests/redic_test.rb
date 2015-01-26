@@ -41,12 +41,12 @@ end
 
 test "error when authenticating from url" do
 
-  # The correct password for 6380 is "foo"
-  c2 = Redic.new("redis://:foo@localhost:6380/")
+  # The correct password for 6381 is "foo"
+  c2 = Redic.new("redis://:foo@localhost:6381/")
   c2.call("PING")
 
   # The password provided is wrong
-  c3 = Redic.new("redis://:bar@localhost:6380/")
+  c3 = Redic.new("redis://:bar@localhost:6381/")
 
   assert_raise(RuntimeError) do
 
@@ -172,4 +172,12 @@ test "pub/sub" do |c1|
   c1.call("UNSUBSCRIBE", "foo")
 
   assert_equal "PONG", c1.call("PING")
+end
+
+test "reconnect" do |c1|
+  assert_equal "6379", c1.call("INFO", "server").slice(/tcp_port:(\d+)/, 1)
+
+  c1.configure("redis://:foo@localhost:6381/")
+
+  assert_equal "6381", c1.call("INFO", "server").slice(/tcp_port:(\d+)/, 1)
 end
