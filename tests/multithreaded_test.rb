@@ -33,5 +33,14 @@ test "multiple threads" do
 
   c.commit
 
+  # The buffer for `c` still exists
   assert_equal "1", c.call("GET", "foo")
+
+  # Buffer for the thread that didn't commit is the only one left
+  assert_equal 1, c.instance_variable_get("@buffer").keys.size
+
+  c.clear
+
+  # All buffers are cleared
+  assert_equal 0, c.instance_variable_get("@buffer").keys.size
 end
