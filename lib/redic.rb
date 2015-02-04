@@ -7,7 +7,10 @@ class Redic
   def initialize(url = "redis://127.0.0.1:6379", timeout = 10_000_000)
     @url = url
     @client = Redic::Client.new(url, timeout)
-    @queue = []
+  end
+
+  def buffer
+    Thread.current[:redic_buffer] ||= []
   end
 
   def configure(url, timeout = 10_000_000)
@@ -23,21 +26,21 @@ class Redic
   end
 
   def queue(*args)
-    @queue << args
+    buffer << args
   end
 
   def commit
     @client.connect do
-      @queue.each do |args|
+      buffer.each do |args|
         @client.write(args)
       end
 
-      @queue.map do
+      buffer.map do
         @client.read
       end
     end
   ensure
-    @queue.clear
+    buffer.clear
   end
 
   def timeout
