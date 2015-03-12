@@ -4,7 +4,14 @@ require_relative "../lib/redic"
 REDIS_URL = "redis://localhost:6379/"
 
 prepare do
-  Redic.new(REDIS_URL).call("FLUSHDB")
+  c = Redic.new(REDIS_URL)
+  begin
+    c.call("FLUSHDB")
+  rescue
+    c.call("AUTH", "foo")
+    c.call("FLUSHDB")
+    c.call("CONFIG", "SET", "requirepass", "")
+  end
 end
 
 setup do
@@ -39,20 +46,25 @@ test "error when selecting db from url" do
   end
 end
 
-test "error when authenticating from url" do
+test "error when authenticating from url" do |c1|
 
-  # The correct password for 6381 is "foo"
-  c2 = Redic.new("redis://:foo@localhost:6381/")
-  c2.call("PING")
+  # Configure password as "foo"
+  c1.call("CONFIG", "SET", "requirepass", "foo")
 
   # The password provided is wrong
-  c3 = Redic.new("redis://:bar@localhost:6381/")
+  c2 = Redic.new("redis://:bar@localhost:6379/")
 
   assert_raise(RuntimeError) do
 
     # Connection is lazy, send a command
-    c3.call("PING")
+    c2.call("PING")
   end
+
+  c3 = Redic.new("redis://:foo@localhost:6379/")
+  assert_equal "PONG", c3.call("PING")
+
+  # Remove password
+  c3.call("CONFIG", "SET", "requirepass", "")
 end
 
 test "Can connect to sentinel" do
@@ -175,9 +187,23 @@ test "pub/sub" do |c1|
 end
 
 test "reconnect" do |c1|
-  assert_equal "6379", c1.call("INFO", "server").slice(/tcp_port:(\d+)/, 1)
+  c1.call("CONFIG", "SET", "requirepass", "foo")
 
-  c1.configure("redis://:foo@localhost:6381/")
+  c1.configure("redis://:foo@localhost:6379/")
 
-  assert_equal "6381", c1.call("INFO", "server").slice(/tcp_port:(\d+)/, 1)
+  assert_equal "PONG", c1.call("PING")
+end
+
+test "disconnect" do |c1|
+
+  # Connection is lazy
+  assert_equal false, c1.client.connected?
+  assert_equal false, c1.quit
+
+  c1.call("PING")
+
+  assert_equal true, c1.client.connected?
+  assert_equal true, c1.quit
+
+  assert_equal false, c1.client.connected?
 end

@@ -7,13 +7,16 @@ class Redic
 
     def initialize(url, timeout)
       @semaphore = Mutex.new
+      @connection = false
+
       configure(url, timeout)
     end
 
     def configure(url, timeout)
+      disconnect!
+
       @uri = URI.parse(url)
       @timeout = timeout
-      @connection = nil
     end
 
     def read
@@ -31,8 +34,30 @@ class Redic
         yield
       end
     rescue Errno::ECONNRESET
-      @connection = nil
+      @connection = false
       retry
+    end
+
+    def connected?
+      @connection && @connection.connected?
+    end
+
+    def disconnect!
+      if connected?
+        @connection.disconnect
+        @connection = false
+      end
+    end
+
+    def quit
+      if connected?
+        assert_ok(call("QUIT"))
+        disconnect!
+
+        true
+      else
+        false
+      end
     end
 
   private
@@ -54,10 +79,6 @@ class Redic
         write(args)
         read
       end
-    end
-
-    def connected?
-      @connection && @connection.connected?
     end
 
     def assert(value, error)

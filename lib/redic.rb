@@ -55,4 +55,8 @@ class Redic
   def timeout
     @client.timeout
   end
+
+  def quit
+    @client.quit
+  end
 end
