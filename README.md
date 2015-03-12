@@ -71,6 +71,15 @@ redis = Redic.new(REDIS_URL, REDIS_TIMEOUT)
 Both the initializer and the `configure` method accept a `URL` and
 a `timeout`.
 
+In order to close the connection, call `quit`:
+
+```ruby
+redis = Redic.new("redis://localhost:6379")
+redis.quit
+```
+
+With that command, `"QUIT"` is sent to Redis and the socket is closed.
+
 ## Differences with redis-rb
 
 Redic uses [hiredis][hiredis] for the connection and for parsing
