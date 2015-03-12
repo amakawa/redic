@@ -1,3 +1,7 @@
+1.4.1
+
+- Reconnect only if URLs differ.
+
 1.4.0
 
 - Close connections with Redic#quit.
