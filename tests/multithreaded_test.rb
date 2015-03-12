@@ -4,7 +4,15 @@ require_relative "../lib/redic"
 REDIS_URL = "redis://localhost:6379/"
 
 prepare do
-  Redic.new(REDIS_URL).call("FLUSHDB")
+  c = Redic.new(REDIS_URL)
+
+  begin
+    c.call("FLUSHDB")
+  rescue
+    c.call("AUTH", "foo")
+    c.call("FLUSHDB")
+    c.call("CONFIG", "SET", "requirepass", "")
+  end
 end
 
 test "multiple threads" do

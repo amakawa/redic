@@ -5,6 +5,7 @@ REDIS_URL = "redis://localhost:6379/"
 
 prepare do
   c = Redic.new(REDIS_URL)
+
   begin
     c.call("FLUSHDB")
   rescue
@@ -187,9 +188,22 @@ test "pub/sub" do |c1|
 end
 
 test "reconnect" do |c1|
+  url = "redis://:foo@localhost:6379/"
+
+  assert url != c1.url
+
   c1.call("CONFIG", "SET", "requirepass", "foo")
 
-  c1.configure("redis://:foo@localhost:6379/")
+  c1.configure(url)
+
+  assert url == c1.url
+  assert url.object_id == c1.url.object_id
+
+  # Reconfigure only if URLs differ
+  c1.configure(url.dup)
+
+  # No reconnection ocurred
+  assert url.object_id == c1.url.object_id
 
   assert_equal "PONG", c1.call("PING")
 end

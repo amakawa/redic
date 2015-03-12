@@ -23,8 +23,10 @@ class Redic
   end
 
   def configure(url, timeout = 10_000_000)
-    @url = url
-    @client.configure(url, timeout)
+    if @url != url
+      @url = url
+      @client.configure(url, timeout)
+    end
   end
 
   def call(*args)
