@@ -36,6 +36,16 @@ class Redic
     end
   end
 
+  def call!(*args)
+    reply = call(*args)
+
+    if RuntimeError === reply
+      raise reply
+    end
+
+    return reply
+  end
+
   def queue(*args)
     buffer << args
   end
