@@ -3,6 +3,9 @@ require "uri"
 
 class Redic
   class Client
+    EMPTY = "".freeze
+    SLASH = "/".freeze
+
     attr :timeout
 
     def initialize(url, timeout)
@@ -68,9 +71,14 @@ class Redic
         raise err, "Can't connect to: %s" % @uri
       end
 
-      if @uri.scheme == "redis"
-        @uri.password && assert_ok(call("AUTH", @uri.password))
-        @uri.path != "" && assert_ok(call("SELECT", @uri.path[1..-1]))
+      if @uri.scheme != "unix"
+        if @uri.password
+          assert_ok(call("AUTH", @uri.password))
+        end
+
+        if @uri.path != EMPTY && @uri.path != SLASH
+          assert_ok(call("SELECT", @uri.path[1..-1]))
+        end
       end
     end
 
