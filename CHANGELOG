@@ -1,3 +1,7 @@
+1.5.0
+
+- Raise runtime errors when using `call!`.
+
 1.4.1
 
 - Reconnect only if URLs differ.
