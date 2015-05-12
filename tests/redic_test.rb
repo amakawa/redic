@@ -7,11 +7,12 @@ prepare do
   c = Redic.new(REDIS_URL)
 
   begin
-    c.call("FLUSHDB")
+    c.call!("FLUSHDB").inspect
   rescue
-    c.call("AUTH", "foo")
-    c.call("FLUSHDB")
-    c.call("CONFIG", "SET", "requirepass", "")
+    c.call!("AUTH", "foo")
+    c.call!("SELECT", "0")
+    c.call!("FLUSHDB")
+    c.call!("CONFIG", "SET", "requirepass", "")
   end
 end
 
