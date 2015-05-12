@@ -2,7 +2,7 @@ require "cutest"
 require_relative "../lib/redic"
 
 setup do
-  Redic.new("unix:///tmp/redis.sock")
+  Redic.new("unix:///tmp/redis.6379.sock")
 end
 
 test "normal commands" do |c|
