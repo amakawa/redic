@@ -68,6 +68,10 @@ class Redic
     @client.timeout
   end
 
+  def timeout=(timeout)
+    @client.timeout = timeout
+  end
+
   def quit
     @client.quit
   end

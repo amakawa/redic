@@ -83,6 +83,11 @@ test "timeout" do |c1|
   c2 = Redic.new(REDIS_URL, 200_000)
 
   assert_equal 200_000, c2.timeout
+
+  # Change timeout to 5 seconds
+  c2.timeout = 5_000_000
+
+  assert_equal 5_000_000, c2.timeout
 end
 
 test "normal commands" do |c|

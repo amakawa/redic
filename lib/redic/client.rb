@@ -6,7 +6,7 @@ class Redic
     EMPTY = "".freeze
     SLASH = "/".freeze
 
-    attr :timeout
+    attr_accessor :timeout
 
     def initialize(url, timeout)
       @semaphore = Mutex.new
