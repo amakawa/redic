@@ -159,6 +159,20 @@ test "thread safety" do |c|
   assert_equal ["2"], bars.uniq
 end
 
+test "uses thread safe establishing connecting to avoid sending data to" \
+     "client disconnected by concurrent thread" do |c|
+  c.client.define_singleton_method(:read) do |*otps|
+    sleep 0.1 # make sure that second thread is already waiting on sending data
+    c.client.instance_variable_get(:@connection).disconnect
+  end
+
+  t1 = Thread.new { c.call("GET", "foo") }
+  t2 = Thread.new { c.call("GET", "bar") }
+
+  t1.join
+  t2.join
+end
+
 test "blocking commands" do |c1|
   c2 = Redic.new
   r = nil
