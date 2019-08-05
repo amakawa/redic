@@ -31,14 +31,13 @@ class Redic
     end
 
     def connect
-      establish_connection unless connected?
-
       @semaphore.synchronize do
+        establish_connection unless connected?
         yield
+      rescue Errno::ECONNRESET
+        @connection = false
+        retry
       end
-    rescue Errno::ECONNRESET
-      @connection = false
-      retry
     end
 
     def connected?
@@ -54,7 +53,7 @@ class Redic
 
     def quit
       if connected?
-        assert_ok(call("QUIT"))
+        assert_ok(@semaphore.synchronize { call("QUIT") })
         disconnect!
 
         true
@@ -83,10 +82,8 @@ class Redic
     end
 
     def call(*args)
-      @semaphore.synchronize do
-        write(args)
-        read
-      end
+      write(args)
+      read
     end
 
     def assert(value, error)
