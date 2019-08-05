@@ -1,3 +1,7 @@
+1.5.2
+
+- Prevent concurrent when connecting.
+
 1.5.1
 
 - Allow timeout to be changed.
