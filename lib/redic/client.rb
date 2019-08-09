@@ -32,11 +32,13 @@ class Redic
 
     def connect
       @semaphore.synchronize do
-        establish_connection unless connected?
-        yield
-      rescue Errno::ECONNRESET
-        @connection = false
-        retry
+        begin
+          establish_connection unless connected?
+          yield
+        rescue Errno::ECONNRESET
+          @connection = false
+          retry
+        end
       end
     end
 
