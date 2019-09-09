@@ -23,7 +23,12 @@ class Redic
     end
 
     def read
-      @connection.read
+      ret = @connection.read
+      if ret.is_a? RuntimeError and ret.to_s.start_with? "READONLY"
+        raise ret 
+      else
+        return ret
+      end
     end
 
     def write(command)
